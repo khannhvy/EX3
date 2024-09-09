@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, KeyboardAvoidingView, Platform, ScrollView, StatusBar, useWindowDimensions, TouchableOpacity, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, Text, StyleSheet, Image, TextInput, KeyboardAvoidingView, Platform, ScrollView, StatusBar, useWindowDimensions, TouchableOpacity, TouchableWithoutFeedback, Keyboard, useColorScheme } from 'react-native';
 
 export default function App() {
   const { width, height } = useWindowDimensions(); 
   const [orientation, setOrientation] = useState('portrait');
+  const colorScheme = useColorScheme();
 
   const getOrientation = () => (width < height ? 'portrait' : 'landscape');
 
@@ -13,25 +14,22 @@ export default function App() {
 
   const imageWidth = width * 0.8;
 
-  const statusBarSettings = () => {
-    const backgroundColor = Platform.select({
-      ios: orientation === 'portrait' ? '#67BF7F' : '#CD5C5C',
-      android: orientation === 'portrait' ? '#67BF7F' : '#CD5C5C',
-    });
+  useEffect(() => {
+    const backgroundColor = colorScheme === 'dark' ? '#67BF7F' : '#CD5C5C';
+    const barStyle = colorScheme === 'dark' ? 'light-content' : 'dark-content';
 
-    const barStyle = Platform.select({
-      ios: orientation === 'portrait' ? 'light-content' : 'dark-content',
-      android: orientation === 'portrait' ? 'light-content' : 'dark-content',
-    });
-
-    return { backgroundColor, barStyle };
-  };
-
-  const { backgroundColor, barStyle } = statusBarSettings();
+    if (Platform.OS === 'android') {
+      StatusBar.setBackgroundColor(backgroundColor); 
+    }
+    StatusBar.setBarStyle(barStyle); 
+  }, [colorScheme]); 
 
   return (
     <>
-      <StatusBar backgroundColor={backgroundColor} barStyle={barStyle} />
+      <View>
+        <StatusBar translucent={false} />
+      </View>
+
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -87,7 +85,7 @@ export default function App() {
       </KeyboardAvoidingView>
     </>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
